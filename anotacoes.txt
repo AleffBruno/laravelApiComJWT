@@ -61,6 +61,78 @@ JWT {
     > implemente os metodos em AuthController ( veja o arquivo )
 }
 
+>JWT2 {
+    > $ composer require tymon/jwt-auth
+    > Go to the config  >>  app.php file and add the following {
+        'providers' => [
+            ....
+            'Tymon\JWTAuth\Providers\JWTAuthServiceProvider',
+        ],
+        'aliases' => [
+            ....
+            'JWTAuth' => 'Tymon\JWTAuth\Facades\JWTAuth',
+                'JWTFactory' => 'Tymon\JWTAuth\Facades\JWTFactory',
+        ],
+    }
+    > $ php artisan vendor:publish --provider="Tymon\JWTAuth\Providers\JWTAuthServiceProvider"
+    > $ php artisan jwt:generate
+    > If you find an error like this after hit the above command {
+        ReflectionException : Method Tymon\JWTAuth\Commands\JWTGenerateCommand::handle() does not exist
+        You need to do the following step.
+        Go to JWTGenerateCommand.php file located in vendor/tymon/src/Commands and paste this part of code 'public function handle() { $this->fire(); }'
+        You can find more about this issue(https://github.com/tymondesigns/jwt-auth/issues/1298).
+    }
+    > php artisan migrate
+    > Now, create two controller files for user registration and authentication {
+        $ php artisan make:controller APIRegisterController
+        $ php artisan make:controller APILoginController
+    }
+    > Also, register the api routes inside routes  >>  api.php file. {
+        Route::post('user/register', 'APIRegisterController@register');
+        Route::post('user/login', 'APILoginController@login');
+    }
+    > First, we code the register function inside APIRegisterController.php file. ( veja o arquivo )
+    > Implemente a interface JWT nas models (ex: \app\User.php)
+
+    TESTANDO NO POSTMAN {
+        > REGISTRO
+        POST : http://127.0.0.1:8000/api/user/register
+        body : x-www-form-urlencoded => email, nome, password
+        resposta : {
+            "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC8xMjcuMC4wLjE6ODAwMFwvYXBpXC91c2VyXC9yZWdpc3RlciIsImlhdCI6MTU3NjY3MTAxNCwiZXhwIjoxNTc2Njc0NjE0LCJuYmYiOjE1NzY2NzEwMTQsImp0aSI6ImxmVDhEclZDaURLUlhkYXYiLCJzdWIiOjIsInBydiI6Ijg3ZTBhZjFlZjlmZDE1ODEyZmRlYzk3MTUzYTE0ZTBiMDQ3NTQ2YWEifQ.P2b2T0hj1WL_JqUm92MPacURx8onJZpMwZIl4A8WSQc"
+        }
+
+        > LOGIN
+        POST : http://127.0.0.1:8000/api/user/login
+        body : x-www-form-urlencoded => email, password
+        resposta : {
+            "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC8xMjcuMC4wLjE6ODAwMFwvYXBpXC91c2VyXC9yZWdpc3RlciIsImlhdCI6MTU3NjY3MTAxNCwiZXhwIjoxNTc2Njc0NjE0LCJuYmYiOjE1NzY2NzEwMTQsImp0aSI6ImxmVDhEclZDaURLUlhkYXYiLCJzdWIiOjIsInBydiI6Ijg3ZTBhZjFlZjlmZDE1ODEyZmRlYzk3MTUzYTE0ZTBiMDQ3NTQ2YWEifQ.P2b2T0hj1WL_JqUm92MPacURx8onJZpMwZIl4A8WSQc"
+        }
+    }
+
+    > Include middleware to protect the resources {
+        We just need to register these middlewares into app  >>  Http  >> Kernel.php file. {
+            protected $routeMiddleware = [
+            ...
+            ...
+            'jwt.auth' => 'Tymon\JWTAuth\Middleware\GetUserFromToken',
+            'jwt.refresh' => 'Tymon\JWTAuth\Middleware\RefreshToken',
+            ]
+        }
+    }
+    > Define one route(api.php) that needs to be protected via JWT Token Authentication. {
+        Route::middleware('jwt.auth')->get('users', function(Request $request) {
+            return auth()->user();
+        });
+    }
+    > Agora envie uma requisição com o Token no header authorization
+    TESTANDO NO POSTMAN {
+        GET : http://127.0.0.1:8000/api/users
+        Header Authorization : Bearer {SEU_TOKEN_AQUI}
+        resposta: 200
+    }
+}
+
 
 CORS {
     > $ composer require barryvdh/laravel-cors
