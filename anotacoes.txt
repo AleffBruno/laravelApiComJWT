@@ -29,3 +29,46 @@ criando testes {
     }
 }
 
+*FALHOU
+JWT {
+    > $ composer require tymon/jwt-auth "1.0.*"
+    > $ php artisan vendor:publish --provider="Tymon\JWTAuth\Providers\LaravelServiceProvider"  ( vai criar o arquivo config/jwt.php.)
+    > Next step is to generate a secret key : $ php artisan jwt:secret (This command will add a JWT_SECRET value to our .env file)
+    > as models que usarão JWT necessiram implementar 'implements JWTSubject' ( veja app\User.php )
+    > em config/auth.php {
+        'defaults' => [
+            'guard' => 'api',
+            'passwords' => 'users',
+        ],
+
+        ...
+
+        'guards' => [
+            'api' => [
+                'driver' => 'jwt',
+                'provider' => 'users',
+            ],
+        ],
+    }
+    BONUS
+    > definindo rotas em routes/api.php {
+        Route::post('/register', 'AuthController@register');
+
+        Route::post('/login', 'AuthController@login');
+        Route::post('/logout', 'AuthController@logout');
+    }
+    > php artisan make:controller AuthController
+    > implemente os metodos em AuthController ( veja o arquivo )
+}
+
+
+CORS {
+    > $ composer require barryvdh/laravel-cors
+    > And add it to app/Http/Kernel.php in the $middleware array {
+        protected $middleware = [
+            ...
+            \Barryvdh\Cors\HandleCors::class,
+        ];
+    }
+}
+
