@@ -1,0 +1,31 @@
+gettingStart API {
+    > $ php artisan make:model Task --migration --resource --controller
+    > escreva as migrations
+    > $ php artisan migrate
+    > adicione as rotas
+    > escreva os meodos nas controller
+    > adicione o protected $fillable, na Model Task
+}
+
+criando testes {
+    > $ php artisan make:test TaskTest
+    > rodar os testes : $ ./vendor/bin/phpunit
+    > adicione 2 linhas em 'phpunit.xml' caso esteja usando sqlite {
+        >> essa ja tava <env name="SESSION_DRIVER" value="array"/>
+        <env name="DB_CONNECTION" value="sqlite"/>
+        <env name="DB_DATABASE" value=":memory:"/>
+    }
+    > To simplify creating tasks in our tests we can use Model Factories. {
+        > $ php artisan make:factory TaskFactory --model=Task
+        > These factories can be used for seeding your development database 
+        > The factories are located in the database/factories folder.
+        > Then create a seeder to check it works:
+        > $ php artisan make:seeder TaskSeeder
+        > Adicione a linha '$this->call(TaskSeeder::class);' no metodo run em 'DatabaseSeeder.php'
+        > We can use the 'php artisan db:seed' command to invoke the run command
+    }
+    > escrevendo o teste {
+        veja o arquivo tests\Feature\TaskTest.php
+    }
+}
+
