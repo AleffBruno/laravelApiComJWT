@@ -1,6 +1,9 @@
 <?php
 
-Route::get('/tasks', 'TaskController@index')->name('tasks.index');
+
+
+
+Route::middleware('jwt.auth')->get('/tasks', 'TaskController@index')->name('tasks.index');
 
 Route::post('/tasks', 'TaskController@store')->name('tasks.store');
 
